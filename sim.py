@@ -165,3 +165,55 @@ def compare_energy_change(particle, steps=num_of_steps):
     
     print(f"Energy change using Verlet method: {energy_change_verlet:.6e} J")
     print(f"Energy change using Euler method: {energy_change_euler:.6e} J")
+
+def quick_animate(particle, name="Particle"):
+    # Run simulation
+    pos, _ = simulate_Verlet(particle, steps=10000)
+    
+    # Subsample for speed
+    subsampled_pos = pos[::100]
+    
+    # Determine Color based on charge
+    # Positive = Red, Negative = Blue
+    p_color = 'red' if particle.charge > 0 else 'blue'
+    
+    # Create DataFrame
+    df = pd.DataFrame(subsampled_pos, columns=['x', 'y', 'z'])
+    df['time'] = np.arange(len(df))
+    df['charge_type'] = "Positive" if particle.charge > 0 else "Negative"
+    
+    # Create Animation with Fixed Range
+    limit = 4 
+    fig = px.scatter_3d(
+        df, x='x', y='y', z='z', 
+        animation_frame='time',
+        color='charge_type',
+        color_discrete_map={'Positive': 'red', 'Negative': 'blue'},
+        title=f"Stable Preview: {name}",
+        range_x=[-limit, limit], 
+        range_y=[-limit, limit], 
+        range_z=[-limit, limit]
+    )
+    
+    # FIX THE ASPECT RATIO (Prevents stretching/squeezing)
+    fig.update_layout(
+        scene=dict(
+            aspectmode='cube', # This ensures the X, Y, and Z scales are identical
+            xaxis=dict(nticks=4, range=[-limit, limit], title='X'),
+            yaxis=dict(nticks=4, range=[-limit, limit], title='Y'),
+            zaxis=dict(nticks=4, range=[-limit, limit], title='Z'),
+        ),
+        width=800,
+        height=700,
+        margin=dict(r=20, l=10, b=10, t=40)
+    )
+
+    # Add static poles as markers
+    fig.add_scatter3d(x=[0], y=[0], z=[1], 
+                      mode='markers', marker=dict(color='red', size=10, symbol='diamond'),
+                      name='Pos Pole (+)')
+    fig.add_scatter3d(x=[0], y=[0], z=[-1], 
+                      mode='markers', marker=dict(color='blue', size=10, symbol='diamond'),
+                      name='Neg Pole (-)')
+    
+    fig.show()
