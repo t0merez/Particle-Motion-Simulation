@@ -7,6 +7,7 @@ import pandas as pd
 # Constants
 K = 8.9875517873681764e9  # Coulomb's constant in N m²/C²
 
+# Particle class definition
 class Particle:
     def __init__(self, position, velocity, mass, charge):
         self.position = np.array(position)
@@ -21,7 +22,6 @@ negative_side = Particle(position=[0, 0, -1], velocity=[0, 0, 0], mass= 1, charg
 
 #Function to compute the force on a particle due to the positive and negative poles.#
 def compute_force(particle):
-    # Compute the force on particle p due to the positive and negative poles
     r_pos = particle.position - positive_side.position
     r_neg = particle.position - negative_side.position
     
@@ -38,12 +38,14 @@ def compute_force(particle):
     
     return total_force
 
+
+# Calculate the acceleration of the particle based on the total force
 def calculate_acceleration(particle):
-    # Calculate the acceleration of the particle based on the total force
     total_force = compute_force(particle)
     particle.acceleration = total_force / particle.mass
 
 
+# Verlet integration method to update the position and velocity of the particle over time
 def simulate_Verlet(p, dt=1e-7, steps=25000):
     pos = np.zeros((steps + 1, 3))
     vel = np.zeros((steps + 1, 3))
@@ -74,7 +76,9 @@ def simulate_Verlet(p, dt=1e-7, steps=25000):
         
     return pos, vel
 
-def calculateEnergy(particle):
+
+# Function to calculate the total energy of the particle at any given time, including kinetic and potential energy contributions.#
+def calculateTotalEnergy(particle):
     # Calculate kinetic energy
     kinetic_energy = 0.5 * particle.mass * np.linalg.norm(particle.velocity)**2
     
@@ -88,16 +92,19 @@ def calculateEnergy(particle):
     total_energy = kinetic_energy + potential_energy_pos + potential_energy_neg
     return total_energy
 
+
+# Calculate the change in energy of the particle over the course of the simulation
 def calculateEnergyChange(particle, steps=25000):
-    initial_energy = calculateEnergy(particle)
+    initial_energy = calculateTotalEnergy(particle)
     simulate_Verlet(particle, steps=steps)
 
-    final_energy = calculateEnergy(particle)
+    final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
     
     return energy_change
 
 
+# Function to plot the trajectory of the particle in 3D space, showing the positions of the positive and negative poles for reference.#
 def plot_trajectory(particle, steps = 25000):
     pos, _ = simulate_Verlet(particle, steps=steps)
     
