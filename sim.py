@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import plotly.express as px
 import pandas as pd
+import copy
 
 # Constants
 K = 8.9875517873681764e9  # Coulomb's constant in N m²/C²
+num_of_steps = 25000  # Number of simulation steps
 
 # Particle class definition
 class Particle:
@@ -46,7 +48,7 @@ def calculate_acceleration(particle):
 
 
 # Verlet integration method to update the position and velocity of the particle over time
-def simulate_Verlet(p, dt=1e-7, steps=25000):
+def simulate_Verlet(p, dt=1e-7, steps = num_of_steps):
     pos = np.zeros((steps + 1, 3))
     vel = np.zeros((steps + 1, 3))
     
@@ -77,7 +79,7 @@ def simulate_Verlet(p, dt=1e-7, steps=25000):
     return pos, vel
 
 # Euler's method to update the position and velocity of the particle over time.
-def simulate_Euler(p, dt=1e-7, steps=25000):
+def simulate_Euler(p, dt=1e-7, steps=num_of_steps):
     pos = np.zeros((steps + 1, 3))
     vel = np.zeros((steps + 1, 3))
     
@@ -115,18 +117,18 @@ def calculateTotalEnergy(particle):
 
 
 # Calculate the change in energy of the particle over the course of the simulation
-def calculate_energy_change_verlet(particle, steps=25000):
+def calculate_energy_change_verlet(particle, steps=num_of_steps):
     initial_energy = calculateTotalEnergy(particle)
-    simulate_Verlet(particle, steps=steps)
+    simulate_Verlet(particle, steps=steps, dt = 1e-9)
 
     final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
     
     return energy_change
 
-def calculate_energy_change_euler(particle, steps=25000):
+def calculate_energy_change_euler(particle, steps=num_of_steps):
     initial_energy = calculateTotalEnergy(particle)
-    simulate_Euler(particle, steps=steps)
+    simulate_Euler(particle, steps=steps, dt = 1e-9)
 
     final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
@@ -135,7 +137,7 @@ def calculate_energy_change_euler(particle, steps=25000):
 
 
 # Function to plot the trajectory of the particle in 3D space, showing the positions of the positive and negative poles for reference.#
-def plot_trajectory(particle, steps = 25000):
+def plot_trajectory(particle, steps = num_of_steps):
     pos, _ = simulate_Verlet(particle, steps=steps)
     
     fig = plt.figure()
@@ -156,3 +158,10 @@ def plot_trajectory(particle, steps = 25000):
     ax.set_ylabel('Y-axis')
     ax.set_zlabel('Z-axis')
     plt.show()
+
+def compare_energy_change(particle, steps=num_of_steps):
+    energy_change_verlet = calculate_energy_change_verlet(copy.deepcopy(particle), steps=steps)
+    energy_change_euler = calculate_energy_change_euler(copy.deepcopy(particle), steps=steps)
+    
+    print(f"Energy change using Verlet method: {energy_change_verlet:.6e} J")
+    print(f"Energy change using Euler method: {energy_change_euler:.6e} J")
