@@ -76,6 +76,27 @@ def simulate_Verlet(p, dt=1e-7, steps=25000):
         
     return pos, vel
 
+# Euler's method to update the position and velocity of the particle over time.
+def simulate_Euler(p, dt=1e-7, steps=25000):
+    pos = np.zeros((steps + 1, 3))
+    vel = np.zeros((steps + 1, 3))
+    
+    # Store initial state
+    pos[0] = p.position
+    vel[0] = p.velocity
+
+    for i in range(steps):
+        calculate_acceleration(p)
+        
+        # Update velocity and position using Euler's method
+        p.velocity = p.velocity + p.acceleration * dt
+        p.position = p.position + p.velocity * dt
+
+        pos[i+1] = p.position
+        vel[i+1] = p.velocity
+        
+    return pos, vel
+
 
 # Function to calculate the total energy of the particle at any given time, including kinetic and potential energy contributions.#
 def calculateTotalEnergy(particle):
@@ -94,9 +115,18 @@ def calculateTotalEnergy(particle):
 
 
 # Calculate the change in energy of the particle over the course of the simulation
-def calculateEnergyChange(particle, steps=25000):
+def calculate_energy_change_verlet(particle, steps=25000):
     initial_energy = calculateTotalEnergy(particle)
     simulate_Verlet(particle, steps=steps)
+
+    final_energy = calculateTotalEnergy(particle)
+    energy_change = final_energy - initial_energy
+    
+    return energy_change
+
+def calculate_energy_change_euler(particle, steps=25000):
+    initial_energy = calculateTotalEnergy(particle)
+    simulate_Euler(particle, steps=steps)
 
     final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
@@ -110,9 +140,16 @@ def plot_trajectory(particle, steps = 25000):
     
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot(pos[:, 0], pos[:, 1], pos[:, 2])
+    ax.plot(pos[:, 0], pos[:, 1], pos[:, 2], label='Trajectory')
+
+    # Mark the start and end positions of the particle
+    ax.scatter(*pos[0], color='green', marker='o', s=60, label='Start')
+    ax.scatter(*pos[-1], color='magenta', marker='X', s=80, label='End')
+
+    # Mark the fixed poles
     ax.plot(positive_side.position[0], positive_side.position[1], positive_side.position[2], 'ro', label='Positive Pole')
     ax.plot(negative_side.position[0], negative_side.position[1], negative_side.position[2], 'bo', label='Negative Pole')
+
     ax.legend()
     ax.set_title('Trajectory of the Particle')
     ax.set_xlabel('X-axis')
