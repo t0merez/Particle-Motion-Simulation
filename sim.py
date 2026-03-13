@@ -124,7 +124,7 @@ def calculate_energy_change_verlet(particle, steps=num_of_steps):
     final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
     
-    return energy_change
+    return abs(energy_change)
 
 def calculate_energy_change_euler(particle, steps=num_of_steps):
     initial_energy = calculateTotalEnergy(particle)
@@ -133,7 +133,7 @@ def calculate_energy_change_euler(particle, steps=num_of_steps):
     final_energy = calculateTotalEnergy(particle)
     energy_change = final_energy - initial_energy
     
-    return energy_change
+    return abs(energy_change)
 
 
 # Function to plot the trajectory of the particle in 3D space, showing the positions of the positive and negative poles for reference.#
