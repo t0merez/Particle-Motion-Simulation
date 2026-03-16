@@ -217,3 +217,19 @@ def quick_animate(particle, name="Particle"):
                       name='Neg Pole (-)')
     
     fig.show()
+
+
+def calculateDistanceOverTime(particle1, particle2, steps=num_of_steps):
+    pos1, _ = simulate_Verlet(particle1, steps=steps)
+    pos2, _ = simulate_Verlet(particle2, steps=steps)
+    
+    distances = np.linalg.norm(pos1 - pos2, axis=1)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(np.abs(distances))
+    plt.yscale('log')
+    plt.title('Distance Between Two Particles Over Time')
+    plt.xlabel('Time Steps')
+    plt.ylabel('Distance (log scale)')
+    plt.grid()
+    plt.show()
