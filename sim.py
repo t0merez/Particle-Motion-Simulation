@@ -91,8 +91,8 @@ def simulate_Euler(p, dt=1e-7, steps=num_of_steps):
         calculate_acceleration(p)
         
         # Update velocity and position using Euler's method
-        p.velocity = p.velocity + p.acceleration * dt
         p.position = p.position + p.velocity * dt
+        p.velocity = p.velocity + p.acceleration * dt
 
         pos[i+1] = p.position
         vel[i+1] = p.velocity
@@ -159,30 +159,33 @@ def plot_trajectory(particle, steps = num_of_steps):
     ax.set_zlabel('Z-axis')
     plt.show()
 
-def plot_double_trajectory(particle_A, particle_B, steps = num_of_steps):
-    pos_A, _ = simulate_Verlet(particle_A, steps=steps)
-    pos_B, _ = simulate_Verlet(particle_B, steps=steps)
+def plot_double_trajectory(particle_A, particle_B, steps=num_of_steps):
+    # Create deep copies so the simulation doesn't mutate the original objects
+    p_a_copy = copy.deepcopy(particle_A)
+    p_b_copy = copy.deepcopy(particle_B)
     
-    fig = plt.figure()
+    # Run simulations on the copies
+    pos_A, _ = simulate_Verlet(p_a_copy, steps=steps)
+    pos_B, _ = simulate_Verlet(p_b_copy, steps=steps)
+    
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot(pos_A[:, 0], pos_A[:, 1], pos_A[:, 2], label='Particle A Trajectory', color='red')
-    ax.plot(pos_B[:, 0], pos_B[:, 1], pos_B[:, 2], label='Particle B Trajectory', color='blue')
+    
+    # Plot trajectories
+    ax.plot(pos_A[:, 0], pos_A[:, 1], pos_A[:, 2], label='Particle A', color='red', alpha=0.7)
+    ax.plot(pos_B[:, 0], pos_B[:, 1], pos_B[:, 2], label='Particle B', color='blue', alpha=0.7)
 
-    # Mark the start and end positions of the particles
-    ax.scatter(*pos_A[0], color='green', marker='o', s=60, label='Particle A Start')
-    ax.scatter(*pos_A[-1], color='magenta', marker='X', s=80, label='Particle A End')
-    ax.scatter(*pos_B[0], color='cyan', marker='o', s=60, label='Particle B Start')
-    ax.scatter(*pos_B[-1], color='yellow', marker='X', s=80, label='Particle B End')
+    # Mark start and end
+    ax.scatter(*pos_A[0], color='green', marker='o', s=100, label='Start (Shared)')
+    ax.scatter(*pos_A[-1], color='red', marker='X', s=100, label='End A')
+    ax.scatter(*pos_B[-1], color='blue', marker='X', s=100, label='End B')
 
-    # Mark the fixed poles
-    ax.plot(positive_side.position[0], positive_side.position[1], positive_side.position[2], 'ro', label='Positive Pole')
-    ax.plot(negative_side.position[0], negative_side.position[1], negative_side.position[2], 'bo', label='Negative Pole')
+    # Mark fixed poles using global definitions from sim.py
+    ax.scatter(*positive_side.position, color='orange', s=200, label='(+) Pole')
+    ax.scatter(*negative_side.position, color='purple', s=200, label='(-) Pole')
 
     ax.legend()
-    ax.set_title('Trajectories of Particles A and B')
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-    ax.set_zlabel('Z-axis')
+    ax.set_title('Chaos Check: Divergence of Trajectories')
     plt.show()
 
 
@@ -247,8 +250,8 @@ def quick_animate(particle, name="Particle"):
 
 
 def calculateDistanceOverTime(particle1, particle2, steps=num_of_steps):
-    pos1, _ = simulate_Verlet(particle1, steps=steps)
-    pos2, _ = simulate_Verlet(particle2, steps=steps)
+    pos1, _ = simulate_Verlet(copy.deepcopy(particle1), steps=steps)
+    pos2, _ = simulate_Verlet(copy.deepcopy(particle2), steps=steps)
     
     distances = np.linalg.norm(pos1 - pos2, axis=1)
     
