@@ -159,6 +159,33 @@ def plot_trajectory(particle, steps = num_of_steps):
     ax.set_zlabel('Z-axis')
     plt.show()
 
+def plot_double_trajectory(particle_A, particle_B, steps = num_of_steps):
+    pos_A, _ = simulate_Verlet(particle_A, steps=steps)
+    pos_B, _ = simulate_Verlet(particle_B, steps=steps)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(pos_A[:, 0], pos_A[:, 1], pos_A[:, 2], label='Particle A Trajectory', color='red')
+    ax.plot(pos_B[:, 0], pos_B[:, 1], pos_B[:, 2], label='Particle B Trajectory', color='blue')
+
+    # Mark the start and end positions of the particles
+    ax.scatter(*pos_A[0], color='green', marker='o', s=60, label='Particle A Start')
+    ax.scatter(*pos_A[-1], color='magenta', marker='X', s=80, label='Particle A End')
+    ax.scatter(*pos_B[0], color='cyan', marker='o', s=60, label='Particle B Start')
+    ax.scatter(*pos_B[-1], color='yellow', marker='X', s=80, label='Particle B End')
+
+    # Mark the fixed poles
+    ax.plot(positive_side.position[0], positive_side.position[1], positive_side.position[2], 'ro', label='Positive Pole')
+    ax.plot(negative_side.position[0], negative_side.position[1], negative_side.position[2], 'bo', label='Negative Pole')
+
+    ax.legend()
+    ax.set_title('Trajectories of Particles A and B')
+    ax.set_xlabel('X-axis')
+    ax.set_ylabel('Y-axis')
+    ax.set_zlabel('Z-axis')
+    plt.show()
+
+
 def compare_energy_change(particle, steps=num_of_steps):
     energy_change_verlet = calculate_energy_change_verlet(copy.deepcopy(particle), steps=steps)
     energy_change_euler = calculate_energy_change_euler(copy.deepcopy(particle), steps=steps)
