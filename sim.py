@@ -91,8 +91,8 @@ def simulate_Euler(p, dt=1e-7, steps=num_of_steps):
         calculate_acceleration(p)
         
         # Update velocity and position using Euler's method
-        p.position = p.position + p.velocity * dt
         p.velocity = p.velocity + p.acceleration * dt
+        p.position = p.position + p.velocity * dt
 
         pos[i+1] = p.position
         vel[i+1] = p.velocity
