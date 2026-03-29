@@ -247,6 +247,7 @@ def quick_animate(particle, name="Particle"):
                       name='Neg Pole (-)')
     
     fig.show()
+    fig.write_html("particle_animation.html")
 
 
 def calculateDistanceOverTime(particle1, particle2, steps=num_of_steps):
