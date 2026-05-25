@@ -190,11 +190,16 @@ def plot_double_trajectory(particle_A, particle_B, steps=num_of_steps):
 
 
 def compare_energy_change(particle, steps=num_of_steps):
+    initial_energy = calculateTotalEnergy(particle)
     energy_change_verlet = calculate_energy_change_verlet(copy.deepcopy(particle), steps=steps)
     energy_change_euler = calculate_energy_change_euler(copy.deepcopy(particle), steps=steps)
-    
-    print(f"Energy change using Verlet method: {energy_change_verlet:.6e} J")
-    print(f"Energy change using Euler method: {energy_change_euler:.6e} J")
+
+    eps = 1e-30
+    pct_verlet = energy_change_verlet / (abs(initial_energy) + eps) * 100
+    pct_euler  = energy_change_euler  / (abs(initial_energy) + eps) * 100
+
+    print(f"Energy change using Verlet method: {energy_change_verlet:.6e} J  ({pct_verlet:.4e}%)")
+    print(f"Energy change using Euler method:  {energy_change_euler:.6e} J  ({pct_euler:.4e}%)")
 
 def quick_animate(particle, name="Particle"):
     # Run simulation
